@@ -1,5 +1,6 @@
 <script setup>
 import InputBox from "@/components/login-gadgets/InputBox.vue";
+import LoginButton from "@/components/login-gadgets/LoginButton.vue";
 </script>
 
 <template>
@@ -7,9 +8,10 @@ import InputBox from "@/components/login-gadgets/InputBox.vue";
     <div class="container">
       <img src="@/assets/images/logo.png" alt="logo" class="logo"/>
       <div class="input-container">
-        <input-box value="用户名/邮箱"/>
-        <input-box value="密码"/>
+        <input-box value="用户名/邮箱" id="username" />
+        <input-box value="密码" id="password" />
       </div>
+      <LoginButton />
     </div>
   </div>
 </template>

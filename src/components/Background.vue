@@ -1,12 +1,12 @@
 <script setup>
 import '@/assets/images/background.png'
 import Login from "@/components/Login.vue";
+
 </script>
 
 <template>
   <div class="background">
     <div class="content">
-
       <Login />
     </div>
   </div>

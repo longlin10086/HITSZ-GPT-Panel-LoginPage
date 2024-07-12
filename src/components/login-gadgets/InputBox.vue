@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue';
+import { defineProps } from 'vue';
 
 const inputValue = ref('');
 const isActive = ref(false);
@@ -14,7 +15,16 @@ const onBlur = () => {
   }
 };
 
-const props = defineProps(['value']);
+const props = defineProps({
+  id: {
+    type: String,
+    required: true
+  },
+  value: {
+    type: String,
+    required: true
+  }
+});
 
 </script>
 
@@ -26,8 +36,11 @@ const props = defineProps(['value']);
         @focus="onFocus"
         @blur="onBlur"
         :class="{ 'not-empty': inputValue !== '' }"
+        :id="props.id"
     />
-    <label :class="{ 'active': isActive || inputValue !== '' }">{{ props.value }}</label>
+    <label
+        :class="{ 'active': isActive || inputValue !== '' }"
+    >{{ props.value }}</label>
   </div>
 </template>
 
