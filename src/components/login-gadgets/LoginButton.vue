@@ -1,13 +1,12 @@
 <script setup>
-import { ref, defineExpose } from "vue";
+import { ref } from "vue";
 
-import { UserNameError, PasswordError, isPasswordEmpty, isUserNameEmpty, isUsernameLengthValid, isPasswordLengthValid } from "@/components/login-gadgets/ErrorHandler.js";
+import { UserNameError, PasswordError, isPasswordEmpty, isUserNameEmpty, isUsernameLengthValid, isPasswordLengthValid } from "@/components/login-gadgets/RulesHandler.js";
 import { sleep } from "@/components/LoginUtils.js";
 
 const isWaiting = ref(false);
 
-const onClick = async () => {
-  isWaiting.value = true;
+const checkRules = (isPass) => {
   const username = ref(document.getElementById("username")?.value);
   const password = ref(document.getElementById("password")?.value);
 
@@ -15,7 +14,6 @@ const onClick = async () => {
   isPasswordLengthValid.value = password.value.length >= 8 && password.value.length <= 16;
 
   const regex = /^[a-zA-Z0-9]*$/;
-  let isPass = true;
 
   if (!username.value) {
     console.log("Username is required");
@@ -51,15 +49,44 @@ const onClick = async () => {
     isPass = false;
   }
 
+  return isPass;
+}
+
+const onClick = async () => {
+  isWaiting.value = true;
+  const isPass = checkRules(true);
+
   if (!isPass) {
-    console.log(username.value, password.value);
     isWaiting.value = false;
     return;
   }
-  console.log("I'm pass");
+  console.log("Validation passed");
 
-  await sleep(500);
-  isWaiting.value = false;
+  const username = document.getElementById("username")?.value;
+  const password = document.getElementById("password")?.value;
+
+  // Hash the password using SHA-256
+  const hashedPassword = CryptoJS.enc.SHA256(password.value).toString(CryptoJS.enc.Hex);
+
+  try {
+    const response = await fetch('/api/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        username: username.value,
+        password: hashedPassword
+      })
+    });
+
+    const data = await response.json();
+    console.log('Success:', data);
+  } catch (error) {
+    console.error('Error:', error);
+  } finally {
+    isWaiting.value = false;
+  }
 }
 
 </script>
