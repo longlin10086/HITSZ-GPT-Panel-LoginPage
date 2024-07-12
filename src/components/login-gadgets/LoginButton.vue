@@ -1,7 +1,7 @@
 <script setup>
 import { ref, defineExpose } from "vue";
 
-import { UserNameError, PasswordError, isPasswordEmpty, isUserNameEmpty } from "@/components/login-gadgets/ErrorHandler.js";
+import { UserNameError, PasswordError, isPasswordEmpty, isUserNameEmpty, isUsernameLengthValid, isPasswordLengthValid } from "@/components/login-gadgets/ErrorHandler.js";
 import { sleep } from "@/components/LoginUtils.js";
 
 const isWaiting = ref(false);
@@ -11,39 +11,53 @@ const onClick = async () => {
   const username = ref(document.getElementById("username")?.value);
   const password = ref(document.getElementById("password")?.value);
 
+  isUsernameLengthValid.value = username.value.length >= 8 && username.value.length <= 16;
+  isPasswordLengthValid.value = password.value.length >= 8 && password.value.length <= 16;
+
   const regex = /^[a-zA-Z0-9]*$/;
   let isPass = true;
 
-  if (username.value && password.value) {
-    if (!regex.test(username.value)){
-      console.log("Please enter a valid username");
-      UserNameError.value = true;
-      isPass = false;
-    }
-    if (!regex.test(password.value)){
-      console.log("Please enter a valid password");
-      PasswordError.value = true;
-      isPass = false;
-    }
-    if (!isPass) {
-      console.log(username.value, password.value);
-      isWaiting.value = false;
-      return;
-    }
-    console.log("I'm pass");
+  if (!username.value) {
+    console.log("Username is required");
+    isUserNameEmpty.value = true;
+    UserNameError.value = true;
+    isPass = false;
   }
-  else {
-    if (!username.value) {
-      console.log("Username is required");
-      isUserNameEmpty.value = true;
-      UserNameError.value = true;
-    }
-    if (!password.value) {
-      console.log("Password is required");
-      isPasswordEmpty.value = true;
-      PasswordError.value = true;
-    }
+  else if (!regex.test(username.value)){
+    console.log("Please enter a valid username");
+    UserNameError.value = true;
+    isPass = false;
   }
+  else if (!isUsernameLengthValid.value) {
+    console.log("username's length is not feat");
+    UserNameError.value = true;
+    isPass = false;
+  }
+
+  if (!password.value) {
+    console.log("Password is required");
+    isPasswordEmpty.value = true;
+    PasswordError.value = true;
+    isPass = false;
+  }
+  else if (!regex.test(password.value)){
+    console.log("Please enter a valid password");
+    PasswordError.value = true;
+    isPass = false;
+  }
+  else if (!isPasswordLengthValid.value) {
+    console.log("password's length is not feat");
+    PasswordError.value = true;
+    isPass = false;
+  }
+
+  if (!isPass) {
+    console.log(username.value, password.value);
+    isWaiting.value = false;
+    return;
+  }
+  console.log("I'm pass");
+
   await sleep(500);
   isWaiting.value = false;
 }
