@@ -69,8 +69,12 @@ const onClick = async () => {
     <button
         @click="onClick"
         class="circle-button"
+        :class="{
+        'is-waiting': isWaiting,
+      }"
     >
       <svg
+          v-if="!isWaiting"
           xmlns="http://www.w3.org/2000/svg"
           width="24"
           height="24"
@@ -81,48 +85,70 @@ const onClick = async () => {
           stroke-linecap="round"
           stroke-linejoin="round"
           class="feather feather-arrow-right"
-          id="arrow-login"
-          :class="{
-          'is-waiting': isWaiting,
-        }"
       >
         <line x1="5" y1="12" x2="19" y2="12"></line>
         <polyline points="12 5 19 12 12 19"></polyline>
+      </svg>
+      <svg
+          v-else
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 50 50"
+          class="loading-circle"
+      >
+        <circle cx="25" cy="25" r="20" fill="none" stroke="black" stroke-width="4" stroke-linecap="round"></circle>
       </svg>
     </button>
   </div>
 </template>
 
 <style scoped>
-  .LoginButton {
-    position: relative;
-    width: 80%;
-    margin: 10px auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
+.LoginButton {
+  position: relative;
+  width: 80%;
+  margin: 10px auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
-  .circle-button {
-    width: 50px; /* Adjust the size as needed */
-    height: 50px;
-    border-radius: 50%;
-    background-color: #eee; /* Button color */
-    font-size: 20px; /* Arrow size */
-    color: black;
-    border: 2px solid #ccc;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    outline: none;
-  }
+.circle-button {
+  width: 50px; /* Adjust the size as needed */
+  height: 50px;
+  border-radius: 50%;
+  background-color: #eee; /* Button color */
+  font-size: 20px; /* Arrow size */
+  color: black;
+  border: 2px solid #ccc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  outline: none;
+  transition: border-width 0.5s; /* Add transition for border width */
+}
 
-  .circle-button:hover {
-    background-color: #ccc; /* Hover color */
-  }
+.circle-button:hover {
+  background-color: #ccc; /* Hover color */
+}
 
-  #arrow-login.is-waiting {
-    visibility: hidden;
-  }
+.circle-button.is-waiting {
+  background-color: #fff;
+  border-width: 6px; /* Bold border width when waiting */
+  cursor: not-allowed; /* Change cursor to indicate it's not clickable */
+}
+
+.circle-button:disabled {
+  pointer-events: none; /* Disable pointer events when button is disabled */
+}
+
+.loading-circle {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
 </style>
