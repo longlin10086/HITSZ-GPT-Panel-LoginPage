@@ -1,35 +1,61 @@
 <script setup>
 import { ref, defineExpose } from "vue";
 
-import { UserNameError, PasswordError} from "@/components/login-gadgets/ErrorHandler.js";
+import { UserNameError, PasswordError, isPasswordEmpty, isUserNameEmpty } from "@/components/login-gadgets/ErrorHandler.js";
+import { sleep } from "@/components/LoginUtils.js";
 
-const onClick = () => {
+const isWaiting = ref(false);
+
+const onClick = async () => {
+  isWaiting.value = true;
   const username = ref(document.getElementById("username")?.value);
   const password = ref(document.getElementById("password")?.value);
 
   const regex = /^[a-zA-Z0-9]*$/;
+  let isPass = true;
 
   if (username.value && password.value) {
     if (!regex.test(username.value)){
       console.log("Please enter a valid username");
       UserNameError.value = true;
+      isPass = false;
     }
     if (!regex.test(password.value)){
       console.log("Please enter a valid password");
       PasswordError.value = true;
+      isPass = false;
     }
-    console.log(username.value, password.value);
+    if (!isPass) {
+      console.log(username.value, password.value);
+      isWaiting.value = false;
+      return;
+    }
+    console.log("I'm pass");
   }
   else {
-    console.log("Oh noooooooo!");
+    if (!username.value) {
+      console.log("Username is required");
+      isUserNameEmpty.value = true;
+      UserNameError.value = true;
+    }
+    if (!password.value) {
+      console.log("Password is required");
+      isPasswordEmpty.value = true;
+      PasswordError.value = true;
+    }
   }
+  await sleep(500);
+  isWaiting.value = false;
 }
 
 </script>
 
 <template>
   <div class="LoginButton">
-    <button @click="onClick" class="circle-button">
+    <button
+        @click="onClick"
+        class="circle-button"
+    >
       <svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"
@@ -41,6 +67,10 @@ const onClick = () => {
           stroke-linecap="round"
           stroke-linejoin="round"
           class="feather feather-arrow-right"
+          id="arrow-login"
+          :class="{
+          'is-waiting': isWaiting,
+        }"
       >
         <line x1="5" y1="12" x2="19" y2="12"></line>
         <polyline points="12 5 19 12 12 19"></polyline>
@@ -76,5 +106,9 @@ const onClick = () => {
 
   .circle-button:hover {
     background-color: #ccc; /* Hover color */
+  }
+
+  #arrow-login.is-waiting {
+    visibility: hidden;
   }
 </style>

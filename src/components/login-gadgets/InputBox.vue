@@ -1,24 +1,9 @@
 <script setup>
-import { ref, computed, watch } from 'vue';
-import { UserNameError, PasswordError } from "@/components/login-gadgets/ErrorHandler.js";
+import { ref, computed } from 'vue';
+import { UserNameError, PasswordError, isPasswordEmpty, isUserNameEmpty } from "@/components/login-gadgets/ErrorHandler.js";
 
 const inputValue = ref('');
 const isActive = ref(false);
-
-const onFocus = () => {
-  isActive.value = true;
-  if (props.id === 'username') {
-    UserNameError.value = false;
-  } else if (props.id === 'password') {
-    PasswordError.value = false;
-  }
-};
-
-const onBlur = () => {
-  if (inputValue.value === '') {
-    isActive.value = false;
-  }
-};
 
 const props = defineProps({
   id: {
@@ -31,6 +16,27 @@ const props = defineProps({
   }
 });
 
+const defaultLabel = props.value;
+
+const onFocus = () => {
+  isActive.value = true;
+  props.value = defaultLabel;
+  if (props.id === 'username') {
+    UserNameError.value = false;
+    isUserNameEmpty.value = false;
+  } else if (props.id === 'password') {
+    PasswordError.value = false;
+    isPasswordEmpty.value = false;
+  }
+};
+
+const onBlur = () => {
+  if (inputValue.value === '') {
+    isActive.value = false;
+  }
+};
+
+
 const hasError = computed(() => {
   if (props.id === 'username') {
     return UserNameError.value;
@@ -41,12 +47,16 @@ const hasError = computed(() => {
   return false;
 });
 
-// Watch for changes in the error states and update the label text
-watch(hasError, (newVal) => {
-  if (newVal) {
-    props.value = "请输入合法字符";
+const isEmpty = computed(() => {
+  if (props.id === 'username') {
+    return isUserNameEmpty.value;
   }
+  if (props.id === 'password') {
+    return isPasswordEmpty.value;
+  }
+  return false;
 });
+
 </script>
 
 <template>
@@ -64,10 +74,10 @@ watch(hasError, (newVal) => {
     />
     <label
         :class="{
-            'active': isActive || inputValue !== '',
+            'active': isActive,
             'has-error': hasError
          }"
-    >{{ hasError ? "请输入合法字符" : props.value }}</label>
+    >{{ isEmpty ? "内容不能为空" : (hasError ? "请输入大小写字母与数字的组合" : defaultLabel) }}</label>
   </div>
 </template>
 
@@ -106,7 +116,7 @@ label {
   transform: translateY(-50%);
   color: #aaa;
   pointer-events: none;
-  transition: 1s ease all;
+  transition: 0.5s ease all;
 }
 
 label.active {
