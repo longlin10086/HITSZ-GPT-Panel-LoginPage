@@ -1,10 +1,12 @@
 <script setup>
 import { ref } from "vue";
+import CryptoJS from 'crypto-js';
 
 import { UserNameError, PasswordError, isPasswordEmpty, isUserNameEmpty, isUsernameLengthValid, isPasswordLengthValid } from "@/components/login-gadgets/RulesHandler.js";
 import { sleep } from "@/components/LoginUtils.js";
 
 const isWaiting = ref(false);
+const errorMessage = ref('');
 
 const checkRules = (isPass) => {
   const username = ref(document.getElementById("username")?.value);
@@ -66,7 +68,10 @@ const onClick = async () => {
   const password = document.getElementById("password")?.value;
 
   // Hash the password using SHA-256
-  const hashedPassword = CryptoJS.enc.SHA256(password.value).toString(CryptoJS.enc.Hex);
+  const hashedPassword = CryptoJS.SHA256(password.value).toString(CryptoJS.enc.Hex);
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 seconds timeout
 
   try {
     const response = await fetch('/api/login', {
@@ -77,12 +82,20 @@ const onClick = async () => {
       body: JSON.stringify({
         username: username.value,
         password: hashedPassword
-      })
+      }),
+      signal: controller.signal
     });
+
+    clearTimeout(timeoutId);
 
     const data = await response.json();
     console.log('Success:', data);
   } catch (error) {
+    if (error.name === 'AbortError') {
+      errorMessage.value = 'Request timed out';
+    } else {
+      errorMessage.value = 'An error occurred';
+    }
     console.error('Error:', error);
   } finally {
     isWaiting.value = false;
