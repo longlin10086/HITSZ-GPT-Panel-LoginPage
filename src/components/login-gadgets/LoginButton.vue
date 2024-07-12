@@ -1,5 +1,7 @@
 <script setup>
-import {ref} from "vue";
+import { ref, defineExpose } from "vue";
+
+import { UserNameError, PasswordError} from "@/components/login-gadgets/ErrorHandler.js";
 
 const onClick = () => {
   const username = ref(document.getElementById("username")?.value);
@@ -10,11 +12,11 @@ const onClick = () => {
   if (username.value && password.value) {
     if (!regex.test(username.value)){
       console.log("Please enter a valid username");
-      return;
+      UserNameError.value = true;
     }
     if (!regex.test(password.value)){
       console.log("Please enter a valid password");
-      return;
+      PasswordError.value = true;
     }
     console.log(username.value, password.value);
   }
@@ -22,6 +24,7 @@ const onClick = () => {
     console.log("Oh noooooooo!");
   }
 }
+
 </script>
 
 <template>
