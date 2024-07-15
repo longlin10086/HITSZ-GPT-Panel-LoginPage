@@ -10,7 +10,8 @@
   },
   "dependencies": {
     "crypto-js": "^4.2.0",
-    "vue": "^3.4.29"
+    "vue": "^3.4.29",
+    "vue-router": "^4.4.0"
   },
   "devDependencies": {
     "@types/crypto-js": "^4.2.2",

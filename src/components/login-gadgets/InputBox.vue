@@ -1,6 +1,8 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
-import { UserNameError, PasswordError, isPasswordEmpty, isUserNameEmpty, isUsernameLengthValid, isPasswordLengthValid } from "@/components/login-gadgets/RulesHandler.js";
+import { UserNameError, PasswordError, isPasswordEmpty, isUserNameEmpty,
+  isUsernameLengthValid, isPasswordLengthValid,
+  ConfirmPasswordError, isConfirmPasswordEmpty } from "@/components/login-gadgets/RulesHandler.js";
 
 const inputValue = ref('');
 const isActive = ref(false);
@@ -26,6 +28,9 @@ const onFocus = () => {
   } else if (props.id === 'password') {
     PasswordError.value = false;
     isPasswordEmpty.value = false;
+  } else if (props.id === 'confirm-password') {
+    ConfirmPasswordError.value = false;
+    isConfirmPasswordEmpty.value = false;
   }
 };
 
@@ -37,10 +42,13 @@ const onBlur = () => {
 
 const hasError = computed(() => {
   if (props.id === 'username') {
-    return UserNameError.value
+    return UserNameError.value;
   }
   if (props.id === 'password') {
-    return PasswordError.value
+    return PasswordError.value;
+  }
+  if (props.id === 'confirm-password') {
+    return ConfirmPasswordError.value;
   }
   return false;
 });
@@ -52,12 +60,15 @@ const isEmpty = computed(() => {
   if (props.id === 'password') {
     return isPasswordEmpty.value;
   }
+  if (props.id === 'confirm-password') {
+    return isConfirmPasswordEmpty.value;
+  }
   return false;
 });
 
 // New computed property for input type
 const inputType = computed(() => {
-  return props.id === 'password' ? 'password' : 'text';
+  return (props.id === 'password' || props.id === 'confirm-password') ? 'password' : 'text';
 });
 
 const isLengthValid = computed(() => {
@@ -91,7 +102,7 @@ const isLengthValid = computed(() => {
             'has-error': hasError
          }"
     >{{ isEmpty ? "内容不能为空" :
-        (hasError ? (!isLengthValid ? "长度需控制在8到16个字符之间" : "请输入大小写字母与数字的组合") :
+        (hasError ? (props.id === 'confirm-password' && ConfirmPasswordError ? "与密码不一致，请重新输入" : (!isLengthValid ? "长度需控制在8到16个字符之间" : "请输入大小写字母与数字的组合")) :
             defaultLabel) }}</label>
   </div>
 </template>

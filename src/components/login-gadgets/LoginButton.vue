@@ -2,7 +2,8 @@
 import { ref } from "vue";
 import CryptoJS from 'crypto-js';
 
-import { UserNameError, PasswordError, isPasswordEmpty, isUserNameEmpty, isUsernameLengthValid, isPasswordLengthValid } from "@/components/login-gadgets/RulesHandler.js";
+import { UserNameError, PasswordError, isPasswordEmpty, isUserNameEmpty, ConfirmPasswordError, isConfirmPasswordEmpty, hasConfirmPassword,
+  isUsernameLengthValid, isPasswordLengthValid } from "@/components/login-gadgets/RulesHandler.js";
 import { sleep } from "@/components/LoginUtils.js";
 
 const isWaiting = ref(false);
@@ -11,6 +12,10 @@ const errorMessage = ref('');
 const checkRules = (isPass) => {
   const username = ref(document.getElementById("username")?.value);
   const password = ref(document.getElementById("password")?.value);
+  const confirmPassword = ref('');
+  if (hasConfirmPassword) {
+    confirmPassword.value = document.getElementById("confirm-password").value;
+  }
 
   isUsernameLengthValid.value = username.value.length >= 8 && username.value.length <= 16;
   isPasswordLengthValid.value = password.value.length >= 8 && password.value.length <= 16;
@@ -48,6 +53,16 @@ const checkRules = (isPass) => {
   else if (!isPasswordLengthValid.value) {
     console.log("password's length is not feat");
     PasswordError.value = true;
+    isPass = false;
+  }
+
+  if (confirmPassword.value) {
+    isConfirmPasswordEmpty.value = false;
+    ConfirmPasswordError.value = !(confirmPassword.value === password.value);
+    isPass = !ConfirmPasswordError.value;
+  } else {
+    isConfirmPasswordEmpty.value = true;
+    ConfirmPasswordError.value = true;
     isPass = false;
   }
 
