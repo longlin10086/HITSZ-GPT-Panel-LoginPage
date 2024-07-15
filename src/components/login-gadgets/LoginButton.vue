@@ -69,6 +69,35 @@ const checkRules = (isPass) => {
   return isPass;
 }
 
+const handleAuth = async (isRegister, username, password, controller) => {
+  const endpoint = isRegister ? '/api/register' : '/api/login';
+  const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 seconds timeout
+
+
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      username: username,
+      password: password,
+    }),
+    signal: controller.signal
+  });
+
+  clearTimeout(timeoutId);
+
+  const data = await response.json();
+  if (response.ok) {
+    console.log(data.message);
+  } else {
+    console.error(data.message);
+  }
+
+  return data;
+}
+
 const onClick = async () => {
   isWaiting.value = true;
   const isPass = checkRules(true);
@@ -86,24 +115,8 @@ const onClick = async () => {
   const hashedPassword = CryptoJS.SHA256(password.value).toString(CryptoJS.enc.Hex);
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 seconds timeout
-
   try {
-    const response = await fetch('/api/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        username: username.value,
-        password: hashedPassword
-      }),
-      signal: controller.signal
-    });
-
-    clearTimeout(timeoutId);
-
-    const data = await response.json();
+    const data = handleAuth(hasConfirmPassword, username.value, hashedPassword, controller);
     console.log('Success:', data);
   } catch (error) {
     if (error.name === 'AbortError') {
