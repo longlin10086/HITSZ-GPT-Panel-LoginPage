@@ -1,21 +1,36 @@
 <script setup>
-import {ref} from "vue";
+import { nextTick, ref } from "vue";
 
 import InputBox from "@/components/login-gadgets/InputBox.vue";
 import LoginButton from "@/components/login-gadgets/LoginButton.vue";
 
-import { hasConfirmPassword } from "@/components/login-gadgets/RulesHandler.js";
+import { hasConfirmPassword, setup } from "@/components/login-gadgets/RulesHandler.js";
 
 const isRegistered = ref(false);
+const username = ref('');
+const password = ref('');
+const confirmPassword = ref('');
 
-const turnRegister = () => {
-  isRegistered.value = true;
-  hasConfirmPassword.value = true;
+const resetInputs = () => {
+  username.value = '';
+  password.value = '';
+  confirmPassword.value = '';
 }
 
-const turnLogin = () => {
+const turnRegister = async () => {
+  isRegistered.value = true;
+  hasConfirmPassword.value = true;
+  resetInputs();
+  setup();
+  await nextTick();
+}
+
+const turnLogin = async () => {
   isRegistered.value = false;
   hasConfirmPassword.value = false;
+  resetInputs();
+  setup();
+  await nextTick();
 }
 
 </script>
@@ -25,9 +40,9 @@ const turnLogin = () => {
     <div class="container">
       <img src="@/assets/images/logo.png" alt="logo" class="logo"/>
       <div class="input-container">
-        <input-box value="用户名/邮箱" id="username" />
-        <input-box value="密码" id="password" />
-        <input-box v-if="isRegistered" id="confirm-password" value="确认密码" />
+        <input-box v-model="username" value="用户名/邮箱" id="username" />
+        <input-box v-model="password" type="password" value="密码" id="password" />
+        <input-box v-if="isRegistered" v-model="confirmPassword" type="password" value="确认密码" id="confirm-password" />
       </div>
       <div>
         <p v-if="!isRegistered">还没有账号？<a href="#" @click.prevent="turnRegister">点此注册</a></p>

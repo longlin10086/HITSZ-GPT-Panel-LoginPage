@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue";
+import { ref, toRefs } from "vue";
 import CryptoJS from 'crypto-js';
 
 import { UserNameError, PasswordError, isPasswordEmpty, isUserNameEmpty, ConfirmPasswordError, isConfirmPasswordEmpty, hasConfirmPassword,
@@ -10,11 +10,24 @@ const isWaiting = ref(false);
 const errorMessage = ref('');
 
 const checkRules = (isPass) => {
-  const username = ref(document.getElementById("username")?.value);
-  const password = ref(document.getElementById("password")?.value);
+
+  const usernameElement = document.getElementById("username");
+  const passwordElement = document.getElementById("password");
+
+  const username = ref(usernameElement ? usernameElement.value : '');
+  const password = ref(passwordElement ? passwordElement.value : '');
   const confirmPassword = ref('');
-  if (hasConfirmPassword) {
-    confirmPassword.value = document.getElementById("confirm-password").value;
+
+  if (hasConfirmPassword.value) {
+    const confirmPasswordElement = document.getElementById("confirm-password");
+    if (confirmPasswordElement) {
+      confirmPassword.value = confirmPasswordElement.value;
+    } else {
+      console.error("Element with ID 'confirm-password' not found.");
+      return false;
+    }
+  } else {
+    console.log("Confirm-password is not required");
   }
 
   isUsernameLengthValid.value = username.value.length >= 8 && username.value.length <= 16;
@@ -59,10 +72,13 @@ const checkRules = (isPass) => {
   if (confirmPassword.value) {
     isConfirmPasswordEmpty.value = false;
     ConfirmPasswordError.value = !(confirmPassword.value === password.value);
+    console.log("Confirm failed.");
     isPass = !ConfirmPasswordError.value;
-  } else {
+  }
+  else if (hasConfirmPassword.value) {
     isConfirmPasswordEmpty.value = true;
     ConfirmPasswordError.value = true;
+    console.log("Confirm password is required");
     isPass = false;
   }
 
@@ -71,6 +87,7 @@ const checkRules = (isPass) => {
 
 const handleAuth = async (isRegister, username, password, controller) => {
   const endpoint = isRegister ? '/api/register' : '/api/login';
+  console.log(endpoint);
   const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 seconds timeout
 
 
@@ -104,6 +121,7 @@ const onClick = async () => {
 
   if (!isPass) {
     isWaiting.value = false;
+    console.log("Not pass");
     return;
   }
   console.log("Validation passed");
@@ -116,7 +134,7 @@ const onClick = async () => {
 
   const controller = new AbortController();
   try {
-    const data = handleAuth(hasConfirmPassword, username.value, hashedPassword, controller);
+    const data = handleAuth(hasConfirmPassword.value, username.value, hashedPassword, controller);
     console.log('Success:', data);
   } catch (error) {
     if (error.name === 'AbortError') {

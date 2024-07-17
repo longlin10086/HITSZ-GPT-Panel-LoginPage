@@ -11,3 +11,16 @@ export const isUsernameLengthValid = ref(true);
 export const isPasswordLengthValid = ref(true);
 
 export const hasConfirmPassword = ref(false);
+
+export const setup = () => {
+    UserNameError.value = false;
+    PasswordError.value = false;
+    ConfirmPasswordError.value = false;
+    isUserNameEmpty.value = false;
+    isPasswordEmpty.value = false;
+    isConfirmPasswordEmpty.value = false;
+
+    isUsernameLengthValid.value = false;
+    isPasswordLengthValid.value = false;
+
+}
