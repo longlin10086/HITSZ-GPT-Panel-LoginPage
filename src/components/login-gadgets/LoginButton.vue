@@ -86,34 +86,36 @@ const checkRules = (isPass) => {
 }
 
 const handleAuth = async (isRegister, username, password, controller) => {
-  const endpoint = isRegister ? '/api/register' : '/api/login';
+  const endpoint = isRegister ? 'http://localhost:8000/api/register' : 'http://localhost:8000/api/login';
   console.log(endpoint);
+  console.log(username, password);
   const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 seconds timeout
 
+  try {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username, password }),
+      signal: controller.signal,
+    });
 
-  const response = await fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      username: username,
-      password: password,
-    }),
-    signal: controller.signal
-  });
+    clearTimeout(timeoutId);
 
-  clearTimeout(timeoutId);
+    const data = await response.json();
+    if (response.ok) {
+      console.log(data.message);
+    } else {
+      console.error(data.detail);
+    }
 
-  const data = await response.json();
-  if (response.ok) {
-    console.log(data.message);
-  } else {
-    console.error(data.message);
+    return data;
+  } catch (error) {
+    console.error('Request failed', error);
+    return { message: 'Request failed' };
   }
-
-  return data;
-}
+};
 
 const onClick = async () => {
   isWaiting.value = true;
@@ -126,8 +128,12 @@ const onClick = async () => {
   }
   console.log("Validation passed");
 
-  const username = document.getElementById("username")?.value;
-  const password = document.getElementById("password")?.value;
+  const usernameElement = document.getElementById("username");
+  const passwordElement = document.getElementById("password");
+
+  const username = ref(usernameElement ? usernameElement.value : '');
+  const password = ref(passwordElement ? passwordElement.value : '');
+
 
   // Hash the password using SHA-256
   const hashedPassword = CryptoJS.SHA256(password.value).toString(CryptoJS.enc.Hex);
