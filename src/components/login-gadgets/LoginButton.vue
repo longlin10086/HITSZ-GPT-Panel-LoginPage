@@ -1,9 +1,10 @@
 <script setup>
 import { ref, toRefs } from "vue";
 import CryptoJS from 'crypto-js';
+import Swal from 'sweetalert2';
 
 import { UserNameError, PasswordError, isPasswordEmpty, isUserNameEmpty, ConfirmPasswordError, isConfirmPasswordEmpty, hasConfirmPassword,
-  isUsernameLengthValid, isPasswordLengthValid } from "@/components/login-gadgets/RulesHandler.js";
+  isUsernameLengthValid, isPasswordLengthValid, hasLoginError, hasRegisterError } from "@/components/login-gadgets/RulesHandler.js";
 import { sleep } from "@/components/LoginUtils.js";
 
 const isWaiting = ref(false);
@@ -105,14 +106,39 @@ const handleAuth = async (isRegister, username, password, controller) => {
 
     const data = await response.json();
     if (response.ok) {
+      if (isRegister) {
+        // 注册成功，出现注册成功弹窗
+        await Swal.fire({
+          icon: 'success',
+          title: '注册成功',
+          text: '您的账号已成功注册！',
+        });
+      } else {
+        // 登录成功，跳转 /chat
+        window.location.href = '/chat';
+      }
       console.log(data.message);
     } else {
-      console.error(data.detail);
+      if (isRegister) {
+        // 用户名重复
+        UserNameError.value = true;
+        hasRegisterError.value = true;
+        console.error('Registration error:', data.detail);
+      } else {
+        // 登录失败，用户名和密码有误
+        UserNameError.value = true;
+        PasswordError.value = true;
+        hasLoginError.value = true;
+        console.error('Login error:', data.detail);
+      }
     }
-
     return data;
   } catch (error) {
-    console.error('Request failed', error);
+    if (isRegister) {
+      console.error('Registration request failed:', error);
+    } else {
+      console.error('Login request failed:', error);
+    }
     return { message: 'Request failed' };
   }
 };

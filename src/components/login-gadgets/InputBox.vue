@@ -1,8 +1,10 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
-import { UserNameError, PasswordError, isPasswordEmpty, isUserNameEmpty,
+import {
+  UserNameError, PasswordError, isPasswordEmpty, isUserNameEmpty,
   isUsernameLengthValid, isPasswordLengthValid,
-  ConfirmPasswordError, isConfirmPasswordEmpty } from "@/components/login-gadgets/RulesHandler.js";
+  ConfirmPasswordError, isConfirmPasswordEmpty, hasRegisterError, hasLoginError
+} from "@/components/login-gadgets/RulesHandler.js";
 
 const inputValue = ref('');
 const isActive = ref(false);
@@ -81,6 +83,28 @@ const isLengthValid = computed(() => {
   return true;
 })
 
+const labelValue = computed(() => {
+  if (isEmpty.value) {
+    return '内容不能为空';
+  }
+  if (hasError.value) {
+    if (hasLoginError.value) {
+      return '用户名或密码有误，请重新登录';
+    }
+    if (hasRegisterError.value) {
+      return '用户名已存在';
+    }
+    if (props.id === 'confirm-password' && ConfirmPasswordError.value) {
+      return '与密码不一致，请重新输入';
+    }
+    if (!isLengthValid.value) {
+      return '长度需控制在8到16个字符之间';
+    }
+    return '请输入大小写字母与数字的组合';
+  }
+  return defaultLabel;
+});
+
 </script>
 
 <template>
@@ -101,9 +125,7 @@ const isLengthValid = computed(() => {
             'active': isActive,
             'has-error': hasError
          }"
-    >{{ isEmpty ? "内容不能为空" :
-        (hasError ? (props.id === 'confirm-password' && ConfirmPasswordError ? "与密码不一致，请重新输入" : (!isLengthValid ? "长度需控制在8到16个字符之间" : "请输入大小写字母与数字的组合")) :
-            defaultLabel) }}</label>
+    >{{ labelValue }}</label>
   </div>
 </template>
 

@@ -12,6 +12,9 @@ export const isPasswordLengthValid = ref(true);
 
 export const hasConfirmPassword = ref(false);
 
+export const hasLoginError = ref(false);
+export const hasRegisterError = ref(false);
+
 export const setup = () => {
     UserNameError.value = false;
     PasswordError.value = false;
@@ -23,4 +26,6 @@ export const setup = () => {
     isUsernameLengthValid.value = false;
     isPasswordLengthValid.value = false;
 
+    hasLoginError.value = false;
+    hasRegisterError.value = false;
 }
