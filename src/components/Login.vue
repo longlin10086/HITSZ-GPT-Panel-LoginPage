@@ -4,7 +4,7 @@ import { nextTick, ref } from "vue";
 import InputBox from "@/components/login-gadgets/InputBox.vue";
 import LoginButton from "@/components/login-gadgets/LoginButton.vue";
 
-import { hasConfirmPassword, setup } from "@/components/login-gadgets/RulesHandler.js";
+import { hasConfirmPassword, hasCode, setup } from "@/components/login-gadgets/RulesHandler.js";
 
 const isRegistered = ref(false);
 const username = ref('');
@@ -20,6 +20,7 @@ const resetInputs = () => {
 const turnRegister = async () => {
   isRegistered.value = true;
   hasConfirmPassword.value = true;
+  hasCode.value = true;
   resetInputs();
   setup();
   await nextTick();
@@ -28,6 +29,7 @@ const turnRegister = async () => {
 const turnLogin = async () => {
   isRegistered.value = false;
   hasConfirmPassword.value = false;
+  hasCode.value = false;
   resetInputs();
   setup();
   await nextTick();
@@ -43,6 +45,7 @@ const turnLogin = async () => {
         <input-box v-model="username" value="用户名/邮箱" id="username" />
         <input-box v-model="password" type="password" value="密码" id="password" />
         <input-box v-if="isRegistered" v-model="confirmPassword" type="password" value="确认密码" id="confirm-password" />
+        <input-box v-if="isRegistered" v-model="username" value="邀请码" id="code" />
       </div>
       <div>
         <p v-if="!isRegistered">还没有账号？<a href="#" @click.prevent="turnRegister">点此注册</a></p>

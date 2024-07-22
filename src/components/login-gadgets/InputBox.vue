@@ -1,9 +1,9 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
 import {
-  UserNameError, PasswordError, isPasswordEmpty, isUserNameEmpty,
-  isUsernameLengthValid, isPasswordLengthValid,
-  ConfirmPasswordError, isConfirmPasswordEmpty, hasRegisterError, hasLoginError
+  UserNameError, PasswordError, isPasswordEmpty, isUserNameEmpty, isCodeEmpty,
+  isUsernameLengthValid, isPasswordLengthValid, isCodeLengthValid,
+  ConfirmPasswordError, isConfirmPasswordEmpty, hasRegisterError, hasLoginError, CodeError
 } from "@/components/login-gadgets/RulesHandler.js";
 
 const inputValue = ref('');
@@ -33,6 +33,9 @@ const onFocus = () => {
   } else if (props.id === 'confirm-password') {
     ConfirmPasswordError.value = false;
     isConfirmPasswordEmpty.value = false;
+  } else if (props.id === 'code') {
+    CodeError.value = false;
+    isCodeEmpty.value = false;
   }
 };
 
@@ -52,6 +55,9 @@ const hasError = computed(() => {
   if (props.id === 'confirm-password') {
     return ConfirmPasswordError.value;
   }
+  if (props.id === 'code') {
+    return CodeError.value;
+  }
   return false;
 });
 
@@ -64,6 +70,9 @@ const isEmpty = computed(() => {
   }
   if (props.id === 'confirm-password') {
     return isConfirmPasswordEmpty.value;
+  }
+  if (props.id === 'code') {
+    return isCodeEmpty.value;
   }
   return false;
 });
@@ -79,6 +88,9 @@ const isLengthValid = computed(() => {
   }
   if (props.id === 'username') {
     return isUsernameLengthValid.value;
+  }
+  if (props.id === 'code') {
+    return isCodeLengthValid.value;
   }
   return true;
 })
@@ -98,9 +110,17 @@ const labelValue = computed(() => {
       return '与密码不一致，请重新输入';
     }
     if (!isLengthValid.value) {
+      if (props.id === 'username') {
+        return '长度需控制在4到32个字符之间';
+      }
+      if (props.id === 'code') {
+        return '邀请码格式错误';
+      }
       return '长度需控制在8到16个字符之间';
     }
-    return '请输入大小写字母与数字的组合';
+    if (props.id !== 'code') {
+      return '请输入大小写字母与数字的组合';
+    }
   }
   return defaultLabel;
 });
