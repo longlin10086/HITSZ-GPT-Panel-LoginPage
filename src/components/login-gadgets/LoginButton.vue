@@ -18,7 +18,7 @@ const checkRules = (isPass) => {
   const username = ref(usernameElement ? usernameElement.value : '');
   const password = ref(passwordElement ? passwordElement.value : '');
   const confirmPassword = ref('');
-  const code = ref('');
+  // const code = ref('');
 
   if (hasConfirmPassword.value) {
     const confirmPasswordElement = document.getElementById("confirm-password");
@@ -32,23 +32,36 @@ const checkRules = (isPass) => {
     console.log("Confirm-password is not required");
   }
 
-  if (hasCode.value) {
-    const codeElement = document.getElementById("code");
-    if (codeElement) {
-      code.value = codeElement.value;
-    } else {
-      console.error("Element with ID 'code' not found.");
-      return false;
-    }
-  } else {
-    console.log("Code is not required");
-  }
+  // if (hasCode.value) {
+  //   const codeElement = document.getElementById("code");
+  //   if (codeElement) {
+  //     code.value = codeElement.value;
+  //   } else {
+  //     console.error("Element with ID 'code' not found.");
+  //     return false;
+  //   }
+  // } else {
+  //   console.log("Code is not required");
+  // }
 
   isUsernameLengthValid.value = username.value.length >= 4 && username.value.length <= 32;
   isPasswordLengthValid.value = password.value.length >= 8 && password.value.length <= 16;
-  isCodeLengthValid.value = (code.value.length === 16);
+  // isCodeLengthValid.value = (code.value.length === 16);
 
   const regex = /^[a-zA-Z0-9]*$/;
+
+
+  if (confirmPassword.value) {
+    isConfirmPasswordEmpty.value = false;
+    ConfirmPasswordError.value = !(confirmPassword.value === password.value);
+    isPass = !ConfirmPasswordError.value;
+  }
+  else if (hasConfirmPassword.value) {
+    isConfirmPasswordEmpty.value = true;
+    ConfirmPasswordError.value = true;
+    console.log("Confirm password is required");
+    isPass = false;
+  }
 
   if (!username.value) {
     console.log("Username is required");
@@ -84,39 +97,28 @@ const checkRules = (isPass) => {
     isPass = false;
   }
 
-  if (confirmPassword.value) {
-    isConfirmPasswordEmpty.value = false;
-    ConfirmPasswordError.value = !(confirmPassword.value === password.value);
-    isPass = !ConfirmPasswordError.value;
-  }
-  else if (hasConfirmPassword.value) {
-    isConfirmPasswordEmpty.value = true;
-    ConfirmPasswordError.value = true;
-    console.log("Confirm password is required");
-    isPass = false;
-  }
-
-  if (!code.value) {
-    isCodeEmpty.value = true;
-    CodeError.value = true;
-    isPass = false;
-  }
-  else if (!isCodeLengthValid.value) {
-    console.log("Code length is not feat");
-    console.log(code.value.length);
-    isCodeEmpty.value = false;
-    CodeError.value = true;
-    isPass = false;
-  }
+  // if (!code.value) {
+  //   isCodeEmpty.value = true;
+  //   CodeError.value = true;
+  //   isPass = false;
+  // }
+  // else if (!isCodeLengthValid.value) {
+  //   console.log("Code length is not feat");
+  //   console.log(code.value.length);
+  //   isCodeEmpty.value = false;
+  //   CodeError.value = true;
+  //   isPass = false;
+  // }
 
   return isPass;
 }
 
-const handleAuth = async (isRegister, username, password, code, controller) => {
-  const endpoint = isRegister ? 'http://localhost:8000/api/register' : 'http://localhost:8000/api/login';
+const handleAuth = async (isRegister, username, password, controller) => {
+  const website = 'http://203.195.163.217:8000';
+  const endpoint = website + (isRegister ? '/api/register' : '/api/login');
   console.log(endpoint);
   console.log(username, password);
-  console.log(code);
+  // console.log(code);
   const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 seconds timeout
 
   try {
@@ -128,7 +130,7 @@ const handleAuth = async (isRegister, username, password, code, controller) => {
       body: JSON.stringify({
         username: username,
         password: password,
-        code: code,
+        // code: code,
       }),
       signal: controller.signal,
     });
@@ -190,12 +192,12 @@ const onClick = async () => {
 
   const username = ref(usernameElement ? usernameElement.value : '');
   const password = ref(passwordElement ? passwordElement.value : '');
-  const code = ref('');
-
-  if (hasCode.value) {
-    const codeElement = document.getElementById("code");
-    code.value = codeElement.value;
-  }
+  // const code = ref('');
+  //
+  // if (hasCode.value) {
+  //   const codeElement = document.getElementById("code");
+  //   code.value = codeElement.value;
+  // }
 
 
   // Hash the password using SHA-256
@@ -203,7 +205,7 @@ const onClick = async () => {
 
   const controller = new AbortController();
   try {
-    const data = handleAuth(hasConfirmPassword.value, username.value, hashedPassword, code.value, controller);
+    const data = handleAuth(hasConfirmPassword.value, username.value, hashedPassword, controller);
     console.log('Success:', data);
   } catch (error) {
     if (error.name === 'AbortError') {
